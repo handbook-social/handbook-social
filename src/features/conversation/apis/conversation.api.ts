@@ -89,10 +89,9 @@ export const conversationApi = {
         return apiClient.delete<void>(API_ENDPOINTS.CONVERSATIONS.UNPIN(id, messageId));
     },
 
-    /**
-     * Check if user has access to conversation
-     */
     checkAccess: (id: string) => {
-        return apiClient.get<{ hasAccess: boolean }>(`${API_ENDPOINTS.CONVERSATIONS.BY_ID(id)}/access`);
+        return apiClient.get<{ hasAccess: boolean; isMember: boolean; isGroupMember: boolean }>(
+            `${API_ENDPOINTS.CONVERSATIONS.BY_ID(id)}/access`
+        );
     },
 };
