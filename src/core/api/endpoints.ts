@@ -88,6 +88,7 @@ export const API_ENDPOINTS = {
         PIN: (id: string) => `/conversations/${id}/pin`,
         UNPIN: (id: string, messageId: string) => `/conversations/${id}/pin/${messageId}`,
         PRIVATE: '/conversations/private',
+        BY_GROUP: (groupId: string) => `/conversations/group/${groupId}`,
 
         PARTICIPANTS: (id: string) => `/conversations/${id}/participants`,
         ADD_PARTICIPANT: (id: string) => `/conversations/${id}/participants`,

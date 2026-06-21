@@ -34,11 +34,6 @@ const GroupLayout: React.FC<Props> = ({ params, children }) => {
         enabled: !!user?.id && hasAccess,
     });
 
-    // Only fetch conversations if access is granted
-    const { data: conversations = [], isLoading: isLoadingConversations } = useGroupConversations(groupId, {
-        enabled: !!user?.id && hasAccess,
-    });
-
     // Redirect to home if user is not logged in
     useEffect(() => {
         if (!user?.id) {
@@ -52,7 +47,7 @@ const GroupLayout: React.FC<Props> = ({ params, children }) => {
     }
 
     // Loading state
-    const isLoading = isCheckingAccess || isLoadingGroup || isLoadingConversations;
+    const isLoading = isCheckingAccess || isLoadingGroup;
 
     if (isLoading) {
         return <Loading fullScreen />;
@@ -60,7 +55,7 @@ const GroupLayout: React.FC<Props> = ({ params, children }) => {
 
     return (
         <div>
-            {hasAccess && group && <Sidebar group={group} conversations={conversations} />}
+            {hasAccess && group && <Sidebar group={group} />}
 
             <div className="mx-auto w-full max-w-[1000px]">
                 {group && <Header group={group} />}

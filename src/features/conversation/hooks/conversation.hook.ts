@@ -1,16 +1,7 @@
 import { queryKey } from '@/lib/react-query/query-key';
-import {
-    createGetNextPageParam,
-    defaultInfiniteQueryOptions,
-    defaultQueryOptions,
-} from '@/lib/react-query';
+import { createGetNextPageParam, defaultInfiniteQueryOptions, defaultQueryOptions } from '@/lib/react-query';
 import { handleApiError, showSuccessToast } from '@/shared';
-import {
-    useInfiniteQuery,
-    useMutation,
-    useQuery,
-    useQueryClient,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ConversationService } from '../services/conversation.service';
 import {
     AddParticipantDto,
@@ -19,14 +10,12 @@ import {
     PinMessageDto,
     UpdateConversationDto,
 } from '../types/conversation.type';
+import { IConversation } from '@/types/entites';
 
 /**
  * Hook to get all conversations (infinite query)
  */
-export const useConversations = (
-    params?: ConversationQueryParams,
-    options?: { enabled?: boolean }
-) => {
+export const useConversations = (params?: ConversationQueryParams, options?: { enabled?: boolean }) => {
     const pageSize = params?.page_size || 10;
 
     return useInfiniteQuery({
@@ -46,10 +35,7 @@ export const useConversations = (
 /**
  * Hook to get a conversation by ID
  */
-export const useConversation = (
-    conversationId: string,
-    options?: { enabled?: boolean }
-) => {
+export const useConversation = (conversationId: string, options?: { enabled?: boolean }) => {
     return useQuery({
         queryKey: queryKey.conversations.id(conversationId),
         queryFn: () => ConversationService.getById(conversationId),
@@ -61,16 +47,23 @@ export const useConversation = (
 /**
  * Hook to get conversations by group ID
  */
-export const useGroupConversations = (
-    groupId: string,
-    options?: { enabled?: boolean }
-) => {
+export const useGroupConversations = (groupId: string, options?: { enabled?: boolean }) => {
     return useQuery({
-        queryKey: ['conversations', 'group', groupId],
-        queryFn: async () => {
-            return ConversationService.getByGroupId(groupId);
-        },
+        queryKey: queryKey.conversations.byGroup(groupId),
+        queryFn: async () => await ConversationService.getByGroupId(groupId),
         enabled: options?.enabled !== false && !!groupId,
+        ...defaultQueryOptions,
+    });
+};
+
+/**
+ * Hook to check if user has access to conversation
+ */
+export const useConversationAccess = (conversationId: string) => {
+    return useQuery({
+        queryKey: queryKey.conversations.access(conversationId),
+        queryFn: () => ConversationService.checkAccess(conversationId),
+        enabled: !!conversationId,
         ...defaultQueryOptions,
     });
 };
@@ -82,8 +75,7 @@ export const useCreateConversation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: CreateConversationDto) =>
-            ConversationService.create(data),
+        mutationFn: (data: CreateConversationDto) => ConversationService.create(data),
         onSuccess: (data) => {
             // Invalidate conversations list
             queryClient.invalidateQueries({
@@ -106,19 +98,10 @@ export const useUpdateConversation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({
-            id,
-            data,
-        }: {
-            id: string;
-            data: UpdateConversationDto;
-        }) => ConversationService.update(id, data),
+        mutationFn: ({ id, data }: { id: string; data: UpdateConversationDto }) => ConversationService.update(id, data),
         onSuccess: (data, variables) => {
             // Update cache
-            queryClient.setQueryData(
-                queryKey.conversations.id(variables.id),
-                data
-            );
+            queryClient.setQueryData(queryKey.conversations.id(variables.id), data);
             // Invalidate list
             queryClient.invalidateQueries({
                 queryKey: queryKey.conversations.list(undefined),
@@ -138,8 +121,7 @@ export const useDeleteConversation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (conversationId: string) =>
-            ConversationService.delete(conversationId),
+        mutationFn: (conversationId: string) => ConversationService.delete(conversationId),
         onSuccess: (_, conversationId) => {
             // Remove from cache
             queryClient.removeQueries({
@@ -168,10 +150,7 @@ export const useAddParticipant = () => {
             ConversationService.addParticipant(id, data),
         onSuccess: (data, variables) => {
             // Update cache
-            queryClient.setQueryData(
-                queryKey.conversations.id(variables.id),
-                data
-            );
+            queryClient.setQueryData(queryKey.conversations.id(variables.id), data);
             showSuccessToast('Đã thêm thành viên');
         },
         onError: (error) => {
@@ -187,19 +166,11 @@ export const useRemoveParticipant = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({
-            id,
-            participantId,
-        }: {
-            id: string;
-            participantId: string;
-        }) => ConversationService.removeParticipant(id, participantId),
+        mutationFn: ({ id, participantId }: { id: string; participantId: string }) =>
+            ConversationService.removeParticipant(id, participantId),
         onSuccess: (data, variables) => {
             // Update cache
-            queryClient.setQueryData(
-                queryKey.conversations.id(variables.id),
-                data
-            );
+            queryClient.setQueryData(queryKey.conversations.id(variables.id), data);
             showSuccessToast('Đã xóa thành viên');
         },
         onError: (error) => {
@@ -215,14 +186,10 @@ export const usePinMessage = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: PinMessageDto }) =>
-            ConversationService.pinMessage(id, data),
+        mutationFn: ({ id, data }: { id: string; data: PinMessageDto }) => ConversationService.pinMessage(id, data),
         onSuccess: (data, variables) => {
             // Update cache
-            queryClient.setQueryData(
-                queryKey.conversations.id(variables.id),
-                data
-            );
+            queryClient.setQueryData(queryKey.conversations.id(variables.id), data);
             // Invalidate pinned messages
             queryClient.invalidateQueries({
                 queryKey: queryKey.messages.pinnedMessages(variables.id),
@@ -246,10 +213,7 @@ export const useUnpinMessage = () => {
             ConversationService.unpinMessage(id, messageId),
         onSuccess: (data, variables) => {
             // Update cache
-            queryClient.setQueryData(
-                queryKey.conversations.id(variables.id),
-                data
-            );
+            queryClient.setQueryData(queryKey.conversations.id(variables.id), data);
             // Invalidate pinned messages
             queryClient.invalidateQueries({
                 queryKey: queryKey.messages.pinnedMessages(variables.id),
@@ -268,13 +232,8 @@ export const usePrivateConversation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({
-            userId,
-            friendId,
-        }: {
-            userId: string;
-            friendId: string;
-        }) => ConversationService.getPrivateConversation({ userId, friendId }),
+        mutationFn: ({ userId, friendId }: { userId: string; friendId: string }) =>
+            ConversationService.getPrivateConversation({ userId, friendId }),
         onSuccess: (data) => {
             if (data.isNew) {
                 // Invalidate conversations list if new conversation created

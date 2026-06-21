@@ -16,21 +16,12 @@ const GroupPage = ({ params }: { params: Promise<{ groupId: string }> }) => {
     const { data: group, isLoading: isLoadingGroup } = useGroup(groupId);
 
     // Fetch members using hook
-    const { data: members, isLoading: isLoadingMembers } = useGroupMembers(
-        groupId,
-        { page: 1, pageSize: 200 }
-    );
+    const { data: members, isLoading: isLoadingMembers } = useGroupMembers(groupId, { page: 1, pageSize: 200 });
 
     const isLoading = isLoadingGroup || isLoadingMembers;
 
-    console.log('members', members);
-
     if (isLoading) {
-        return (
-            <div className="rounded-xl bg-secondary-1 p-2 text-center dark:bg-dark-secondary-1">
-                Đang tải...
-            </div>
-        );
+        return <div className="rounded-xl bg-secondary-1 p-2 text-center dark:bg-dark-secondary-1">Đang tải...</div>;
     }
 
     if (!group) {
@@ -91,22 +82,10 @@ const GroupPage = ({ params }: { params: Promise<{ groupId: string }> }) => {
                                     />
 
                                     <div className="flex flex-col">
-                                        <span>
-                                            {
-                                                splitName(member.user.name)
-                                                    .firstName
-                                            }{' '}
-                                            {
-                                                splitName(member.user.name)
-                                                    .lastName
-                                            }
-                                        </span>
+                                        <span>{member.user.name}</span>
 
                                         <span className="text-xs text-gray-500">
-                                            Tham gia vào{' '}
-                                            {FormatDate.formatISODateToDateTime(
-                                                member.joinedAt
-                                            )}
+                                            Tham gia vào {FormatDate.formatISODateToDateTime(member.joinedAt)}
                                         </span>
                                     </div>
                                 </Button>
@@ -114,19 +93,10 @@ const GroupPage = ({ params }: { params: Promise<{ groupId: string }> }) => {
 
                     {members &&
                         (() => {
-                            const totalMemberCount = members.data.filter(
-                                (m) => m.role === GROUP_ROLES.MEMBER
-                            ).length;
-                            const remainingMembers =
-                                totalMemberCount - MAX_MEMBERS;
+                            const totalMemberCount = members.data.filter((m) => m.role === GROUP_ROLES.MEMBER).length;
+                            const remainingMembers = totalMemberCount - MAX_MEMBERS;
 
-                            return (
-                                remainingMembers > 0 && (
-                                    <h5>
-                                        và {remainingMembers} thành viên khác
-                                    </h5>
-                                )
-                            );
+                            return remainingMembers > 0 && <h5>và {remainingMembers} thành viên khác</h5>;
                         })()}
                 </div>
             </div>

@@ -1,9 +1,6 @@
 import { IConversation } from '@/types/entites';
 import { conversationApi } from '../apis/conversation.api';
-import {
-    ConversationQueryParams,
-    CreateConversationDto,
-} from '../types/conversation.type';
+import { ConversationQueryParams, CreateConversationDto } from '../types/conversation.type';
 
 class ConversationServiceClass {
     /**
@@ -39,13 +36,14 @@ class ConversationServiceClass {
 
     /**
      * Get conversations by group ID
-     * TODO: Server API needs GET /conversations?group_id=:groupId endpoint
      */
     public async getByGroupId(groupId: string) {
-        // TODO: Implement getByGroupId endpoint in server-api
-        // GET /conversations?group_id=:groupId
-        console.warn('getByGroupId not yet implemented via REST API');
-        return [] as IConversation[];
+        try {
+            return await conversationApi.getByGroupId(groupId);
+        } catch (error) {
+            console.error('Error getting conversation by group ID:', error);
+            throw error;
+        }
     }
 
     /**
@@ -85,13 +83,7 @@ class ConversationServiceClass {
      * Create conversation after accepting friend request
      * TODO: This can use the regular create method
      */
-    public async createAfterAcceptFriend({
-        userId,
-        friendId,
-    }: {
-        userId: string;
-        friendId: string;
-    }) {
+    public async createAfterAcceptFriend({ userId, friendId }: { userId: string; friendId: string }) {
         // Use regular create method
         return await this.create({
             type: 'private',
@@ -102,13 +94,7 @@ class ConversationServiceClass {
     /**
      * Join a conversation (add member) using REST API
      */
-    public async join({
-        conversationId,
-        userId,
-    }: {
-        conversationId: string;
-        userId: string;
-    }) {
+    public async join({ conversationId, userId }: { conversationId: string; userId: string }) {
         await conversationApi.addParticipant(conversationId, {
             participantId: userId,
         });
@@ -124,13 +110,7 @@ class ConversationServiceClass {
     /**
      * Delete conversation by user (soft delete)
      */
-    public async deleteByUser({
-        conversationId,
-        userId,
-    }: {
-        conversationId: string;
-        userId: string;
-    }) {
+    public async deleteByUser({ conversationId, userId }: { conversationId: string; userId: string }) {
         try {
             await conversationApi.removeParticipant(conversationId, userId);
         } catch (error) {
@@ -152,20 +132,14 @@ class ConversationServiceClass {
     /**
      * Remove participant from conversation - Wrapper
      */
-    public async removeParticipant(
-        conversationId: string,
-        participantId: string
-    ) {
+    public async removeParticipant(conversationId: string, participantId: string) {
         await conversationApi.removeParticipant(conversationId, participantId);
     }
 
     /**
      * Pin a message in conversation using REST API
      */
-    public async pinMessage(
-        conversationId: string,
-        data: { messageId: string }
-    ) {
+    public async pinMessage(conversationId: string, data: { messageId: string }) {
         return await conversationApi.pinMessage(conversationId, data);
     }
 
@@ -179,13 +153,7 @@ class ConversationServiceClass {
     /**
      * Leave a conversation (remove participant) using REST API
      */
-    public async leaveConversation({
-        conversationId,
-        userId,
-    }: {
-        conversationId: string;
-        userId: string;
-    }) {
+    public async leaveConversation({ conversationId, userId }: { conversationId: string; userId: string }) {
         await this.removeParticipant(conversationId, userId);
     }
 
@@ -193,13 +161,7 @@ class ConversationServiceClass {
      * Undelete conversation by user
      * TODO: Server API needs POST /conversations/:id/restore endpoint
      */
-    public async undeleteConversationByUserId({
-        conversationId,
-        userId,
-    }: {
-        conversationId: string;
-        userId: string;
-    }) {
+    public async undeleteConversationByUserId({ conversationId, userId }: { conversationId: string; userId: string }) {
         // TODO: Implement undeleteConversationByUserId endpoint in server-api
         // POST /conversations/:id/restore or re-add participant
         // For now, re-add the user as participant
@@ -209,6 +171,18 @@ class ConversationServiceClass {
             });
         } catch (error) {
             console.error('Error undeleting conversation:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Check if user has access to conversation
+     */
+    public async checkAccess(id: string) {
+        try {
+            return await conversationApi.checkAccess(id);
+        } catch (error) {
+            console.error('Error checking conversation access:', error);
             throw error;
         }
     }

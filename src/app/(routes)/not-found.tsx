@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Navbar } from '@/shared/components/layout';
+import { Button } from '@/shared/components/ui/Button';
 
 const NotFoundPage = () => {
     return (
@@ -14,17 +15,10 @@ const NotFoundPage = () => {
                         <p className="text-2xl font-semibold dark:text-dark-primary-1 md:text-3xl">
                             Xin lỗi, trang bạn đang tìm kiếm không tồn tại.
                         </p>
-                        <p className="mb-8 mt-4 dark:text-dark-primary-1">
-                            Nhưng đừng lo lắng, bạn có thể quay lại trang chủ để
-                            tìm kiếm thông tin khác.
-                        </p>
-                        <Link
-                            rel="noopener noreferrer"
-                            href="/client/public"
-                            className="rounded px-8 py-3 font-semibold dark:bg-violet-600 dark:text-gray-50"
-                        >
+
+                        <Button className="mt-2" href="/" variant={'primary'}>
                             Quay lại trang chủ
-                        </Link>
+                        </Button>
                     </div>
                 </div>
             </section>

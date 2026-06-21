@@ -1,7 +1,7 @@
 'use client';
 import { useAuth, useSocket } from '@/core/context';
 import { useConversation } from '@/core/context/SocialContext';
-import { ConversationService, useConversationMembers } from '@/features/conversation';
+import { ConversationService, useConversationMembers, useConversationAccess } from '@/features/conversation';
 import { ChatBox } from '@/features/message';
 import { Loading } from '@/shared/components/ui';
 import { Button } from '@/shared/components/ui/Button';
@@ -41,9 +41,10 @@ const ConversationPage: React.FC = () => {
     } = useConversation(conversationId as string);
 
     const { members, isLoading: isLoadingMembers } = useConversationMembers(conversationId as string);
+    const { data: accessData } = useConversationAccess(conversationId as string);
 
     const error = useMemo(() => {
-        if (isLoadingConversation || isLoadingMembers) return null;
+        if (isLoadingConversation || isLoadingMembers || !accessData) return null;
 
         if (!conversation) {
             return {
@@ -60,9 +61,9 @@ const ConversationPage: React.FC = () => {
             };
         }
 
-        // Kiểm tra nếu cuộc trò chuyện là nhóm và người dùng là thành viên của nhóm nhưng không phải là người tham gia cuộc trò chuyện
-        const isGroupMember = Boolean(conversation.group?.members?.some((m) => m.user._id === user?.id));
-        const isMember = members.some((m) => m.user._id === user?.id);
+        // Check using data from access API
+        const isMember = accessData.isMember;
+        const isGroupMember = accessData.isGroupMember;
         if (isGroupMember && !isMember) {
             return {
                 message: 'Bạn chưa tham gia cuộc trò chuyện nhóm này.',
@@ -79,7 +80,7 @@ const ConversationPage: React.FC = () => {
         }
 
         return { message: '', type: '' };
-    }, [conversation, isLoadingConversation, isLoadingMembers, user?.id, members]);
+    }, [conversation, isLoadingConversation, isLoadingMembers, user?.id, accessData]);
 
     const handleRestoreConversation = async () => {
         try {
@@ -185,7 +186,9 @@ const ConversationPage: React.FC = () => {
         );
     }
 
-    return <>{conversation && <ChatBox conversation={conversation} findMessage={findMessage} />}</>;
+    return (
+        <>{conversation && error?.type === '' && <ChatBox conversation={conversation} findMessage={findMessage} />}</>
+    );
 };
 
 export default ConversationPage;

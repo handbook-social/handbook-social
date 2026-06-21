@@ -11,11 +11,7 @@ export const queryKey = {
 
     // Users
     users: {
-        list: (params?: { page?: number; pageSize?: number }) => [
-            'users',
-            'list',
-            params,
-        ],
+        list: (params?: { page?: number; pageSize?: number }) => ['users', 'list', params],
         byId: (id: string) => ['users', id],
     },
 
@@ -26,10 +22,7 @@ export const queryKey = {
         followings: (userId: string | undefined) => ['following', userId],
         friends: (userId: string | undefined) => ['friends', userId],
         requests: (userId: string | undefined) => ['requests', userId],
-        notifications: (userId: string | undefined) => [
-            'notifications',
-            userId,
-        ],
+        notifications: (userId: string | undefined) => ['notifications', userId],
         groups: (userId: string | undefined) => ['groups', userId],
     },
 
@@ -52,10 +45,7 @@ export const queryKey = {
         profile: (userId: string) => ['posts', 'profile', userId],
         group: (groupId: string) => ['posts', 'group', groupId],
         comments: (postId: string | undefined) => ['comments', postId],
-        replyComments: (commentId: string | undefined) => [
-            'replyComments',
-            commentId,
-        ],
+        replyComments: (commentId: string | undefined) => ['replyComments', commentId],
     },
 
     // Comments
@@ -76,36 +66,19 @@ export const queryKey = {
 
     // Messages
     messages: {
-        conversationId: (conversationId: string | undefined) => [
-            'messages',
-            'conversation',
-            conversationId,
-        ],
-        pinnedMessages: (conversationId: string | undefined) => [
-            'pinnedMessages',
-            conversationId,
-        ],
-        search: (conversationId: string, keyword: string) => [
-            'messages',
-            'search',
-            conversationId,
-            keyword,
-        ],
+        conversationId: (conversationId: string | undefined) => ['messages', 'conversation', conversationId],
+        pinnedMessages: (conversationId: string | undefined) => ['pinnedMessages', conversationId],
+        search: (conversationId: string, keyword: string) => ['messages', 'search', conversationId, keyword],
     },
 
     // Conversations
     conversations: {
         list: (userId?: string) => ['conversations', userId],
-        id: (conversationId: string | undefined) => [
-            'conversation',
-            conversationId,
-        ],
+        id: (conversationId: string | undefined) => ['conversation', conversationId],
         userId: (userId: string | undefined) => ['conversations', userId],
-        members: (conversationId: string | undefined) => [
-            'conversation',
-            'members',
-            conversationId,
-        ],
+        members: (conversationId: string | undefined) => ['conversation', 'members', conversationId],
+        byGroup: (groupId: string | undefined) => ['conversations', 'group', groupId],
+        access: (conversationId: string | undefined) => ['conversation', 'access', conversationId],
     },
 
     // Groups
@@ -114,21 +87,19 @@ export const queryKey = {
         byId: (id: string) => ['groups', id],
         // Alias for backward compatibility
         id: (id: string) => ['group', id],
-        members: (
-            groupId: string,
-            params?: { page?: number; pageSize?: number }
-        ) => ['groups', 'members', groupId, params],
+        members: (groupId: string, params?: { page?: number; pageSize?: number }) => [
+            'groups',
+            'members',
+            groupId,
+            params,
+        ],
         recommended: (userId?: string) => ['groups', 'recommended', userId],
     },
 
     // Items
     items: {
         index: ['items'],
-        list: (params?: { page?: number; pageSize?: number }) => [
-            'items',
-            'list',
-            params,
-        ],
+        list: (params?: { page?: number; pageSize?: number }) => ['items', 'list', params],
         bySeller: (sellerId: string) => ['items', 'seller', sellerId],
         search: (query: string) => ['items', 'search', query],
         byId: (id: string) => ['items', id],
@@ -136,11 +107,7 @@ export const queryKey = {
 
     // Notifications
     notifications: {
-        byReceiver: (receiverId: string) => [
-            'notifications',
-            'receiver',
-            receiverId,
-        ],
+        byReceiver: (receiverId: string) => ['notifications', 'receiver', receiverId],
         bySender: (senderId: string) => ['notifications', 'sender', senderId],
     },
 
@@ -184,11 +151,7 @@ export const queryKey = {
         },
         conversations: {
             index: ['admin', 'conversations'],
-            id: (conversationId: string | undefined) => [
-                'admin',
-                'conversation',
-                conversationId,
-            ],
+            id: (conversationId: string | undefined) => ['admin', 'conversation', conversationId],
         },
         groups: {
             index: ['admin', 'groups'],
