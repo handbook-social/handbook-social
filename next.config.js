@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
+    output: 'standalone',
+
 
     // Disable ESLint during build - FIX FOR VERCEL
     eslint: {
