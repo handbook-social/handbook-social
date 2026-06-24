@@ -13,7 +13,7 @@ import { VideoCallWrapper } from '@/features/video-call/components';
 import { Toaster as SonnerToaster } from '@/shared/components/ui/sonner';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from 'next-themes';
 import { FunctionComponent, ReactNode, useState } from 'react';
 
@@ -69,6 +69,8 @@ const Providers: FunctionComponent<ProvidersProps> = ({ children }) => {
             <GoogleOAuthProvider clientId={env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
                 <AuthProvider>
                     <AxiosInterceptor />
+                    <Analytics />
+                    
                     <SocketProvider>
                         <SocialProvider>
                             <AppProvider>
