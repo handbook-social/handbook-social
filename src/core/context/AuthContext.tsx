@@ -11,6 +11,8 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Button } from '@/shared/components/ui/Button';
+import Link from 'next/link';
+import { Lock } from 'lucide-react';
 
 interface User {
     id: string;
@@ -32,6 +34,8 @@ interface AuthContextType {
     setAccessToken: (token: string | null) => void;
     logout: () => Promise<void>;
     refreshAccessToken: () => Promise<void>;
+    openLoginModal: () => void;
+    closeLoginModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -165,6 +169,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUserState(newUser);
     }, []);
 
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const openLoginModal = useCallback(() => setShowLoginModal(true), []);
+    const closeLoginModal = useCallback(() => setShowLoginModal(false), []);
+
     const logout = useCallback(async () => {
         try {
             await axiosAuth.post('/auth/logout');
@@ -190,6 +198,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 setAccessToken,
                 logout,
                 refreshAccessToken,
+                openLoginModal,
+                closeLoginModal,
             }}
         >
             {children}
@@ -209,6 +219,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
                             Okay
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog yêu cầu đăng nhập */}
+            <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
+                <DialogContent className="sm:max-w-sm rounded-2xl p-6 border-none shadow-2xl bg-white dark:bg-dark-secondary-1">
+                    <div className="flex flex-col items-center text-center">
+                        {/* Icon Lock với Flat Circle Background */}
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/30 text-primary-2 mb-4">
+                            <Lock className="h-5 w-5" />
+                        </div>
+                        
+                        <DialogHeader className="border-b-0 pb-0 text-center items-center">
+                            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+                                Yêu cầu đăng nhập
+                            </DialogTitle>
+                            <DialogDescription className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                Tính năng này chỉ dành cho thành viên của Handbook. Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục trải nghiệm đầy đủ các tính năng.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        {/* Footer với các nút được thiết kế đồng bộ dạng phẳng */}
+                        <div className="mt-6 flex w-full flex-col gap-2">
+                            <Link href="/auth/login" onClick={closeLoginModal} className="w-full">
+                                <Button variant="primary" className="h-11 w-full font-semibold rounded-xl border-none shadow-sm transition-all duration-200">
+                                    Đăng nhập ngay
+                                </Button>
+                            </Link>
+                            <Button 
+                                variant="ghost" 
+                                className="h-11 w-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-dark-hover-1 font-medium rounded-xl border-none transition-all duration-200" 
+                                onClick={closeLoginModal}
+                            >
+                                Hủy
+                            </Button>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
         </AuthContext.Provider>

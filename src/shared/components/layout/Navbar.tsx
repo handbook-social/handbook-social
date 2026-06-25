@@ -14,7 +14,7 @@ import NavbarSearch from './NavbarSearch';
 import NavbarUser from './NavbarUser';
 
 const Navbar = () => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const path = usePathname();
     const { setIsSidebarOpen } = useSidebarCollapse();
 
@@ -78,6 +78,12 @@ const Navbar = () => {
                                                         }
                                                     )}
                                                     href={link.path || '/'}
+                                                    onClick={(e) => {
+                                                        if (!user && link.path !== '/') {
+                                                            e.preventDefault();
+                                                            openLoginModal();
+                                                        }
+                                                    }}
                                                 >
                                                     <Icon />
 

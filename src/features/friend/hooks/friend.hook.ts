@@ -69,9 +69,10 @@ export const useRemoveFriend = () => {
 /**
  * Hook to get friend suggestions
  */
-export const useFriendSuggestions = (limit: number = 5) => {
+export const useFriendSuggestions = (limit: number = 5, enabled: boolean = true) => {
     return useQuery({
         queryKey: ['friend-suggestions', limit],
         queryFn: () => FriendService.getFriendSuggestions(limit),
+        enabled,
     });
 };

@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Icons from '../ui/Icons';
 
 const NavbarSearch = () => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const [searchResult, setSearchResult] = useState<IUser[]>([]);
@@ -190,7 +190,14 @@ const NavbarSearch = () => {
                                 variant={'text'}
                                 size={'sm'}
                                 href={`/search?type=users&q=${debounceValue}`}
-                                onClick={handleClose}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        openLoginModal();
+                                    } else {
+                                        handleClose();
+                                    }
+                                }}
                             >
                                 <Icons.Search /> Tìm kiếm người dùng: {debounceValue}
                             </Button>
@@ -200,7 +207,14 @@ const NavbarSearch = () => {
                                 variant={'text'}
                                 size={'sm'}
                                 href={`/search?type=posts&q=${debounceValue}`}
-                                onClick={handleClose}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        openLoginModal();
+                                    } else {
+                                        handleClose();
+                                    }
+                                }}
                             >
                                 <Icons.Search /> Tìm kiếm bài viết: {debounceValue}
                             </Button>
@@ -210,7 +224,14 @@ const NavbarSearch = () => {
                                 variant={'text'}
                                 size={'sm'}
                                 href={`/search?type=posts&q=${debounceValue}`}
-                                onClick={handleClose}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        openLoginModal();
+                                    } else {
+                                        handleClose();
+                                    }
+                                }}
                             >
                                 <Icons.Search /> Tìm kiếm nhóm: {debounceValue}
                             </Button>
@@ -220,6 +241,12 @@ const NavbarSearch = () => {
                                 href={`/search?q=${debounceValue}`}
                                 variant={'text'}
                                 size={'sm'}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        openLoginModal();
+                                    }
+                                }}
                             >
                                 <Icons.Search />
                                 Xem tất cả kết quả: {debounceValue}

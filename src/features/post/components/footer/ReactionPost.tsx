@@ -17,7 +17,7 @@ interface Props {
 }
 
 const ReactionPost: React.FC<Props> = ({ post }) => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const queryClient = useQueryClient();
     const { postParams } = usePostContext();
 
@@ -26,7 +26,7 @@ const ReactionPost: React.FC<Props> = ({ post }) => {
     const mutation = useMutation({
         mutationFn: async () => {
             if (!user) {
-                toast.error('Bạn cần đăng nhập để thực hiện chức năng này!');
+                openLoginModal();
                 return;
             }
 

@@ -36,7 +36,7 @@ const NavbarUser = () => {
     const handleLogout = async () => {
         try {
             await logoutMutation.mutateAsync();
-            router.push('/auth/login');
+            router.push('/');
         } catch (error) {
             // Error already handled in hook
         }
@@ -52,8 +52,18 @@ const NavbarUser = () => {
         setTimeout(() => setMenuStack([navbarUserMenu]), 150);
     };
 
-    if (isLoading || !user) {
+    if (isLoading) {
         return <SkeletonAvatar />;
+    }
+
+    if (!user) {
+        return (
+            <Link href="/auth/login">
+                <Button size="sm" variant="primary" className="h-9 font-medium px-4 rounded-xl">
+                    Đăng nhập
+                </Button>
+            </Link>
+        );
     }
 
     return (

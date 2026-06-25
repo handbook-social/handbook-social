@@ -23,7 +23,7 @@ const SavePost: React.FC<Props> = ({ post }) => {
         maxCount: 1,
     });
     const queryClient = useQueryClient();
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
 
     const { postParams } = usePostContext();
 
@@ -38,7 +38,10 @@ const SavePost: React.FC<Props> = ({ post }) => {
         handleClick();
 
         if (!canClick) return;
-        if (!user) return;
+        if (!user) {
+            openLoginModal();
+            return;
+        }
 
         try {
             if (isSaved) {

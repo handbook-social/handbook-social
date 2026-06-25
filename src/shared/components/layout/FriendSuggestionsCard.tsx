@@ -23,7 +23,7 @@ const FriendSuggestionsCard: React.FC = () => {
     const router = useRouter();
     const { user } = useAuth();
 
-    const { data: suggestionsData, isLoading } = useFriendSuggestions(10);
+    const { data: suggestionsData, isLoading } = useFriendSuggestions(10, !!user?.id);
 
     const frozenRef = useRef<typeof suggestionsData>(undefined);
     if (!frozenRef.current && suggestionsData && suggestionsData.length > 0) {
@@ -38,6 +38,8 @@ const FriendSuggestionsCard: React.FC = () => {
     const { isDismissed, dismiss } = useDismissedSuggestions();
 
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    if (!user) return null;
 
     const scroll = (dir: 'left' | 'right') => {
         if (!scrollRef.current) return;

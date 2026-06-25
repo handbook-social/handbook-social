@@ -22,10 +22,13 @@ interface Props {
 const ActionPost: React.FC<Props> = ({ post }) => {
     const { user } = useAuth();
     const path = usePathname();
-    const isManageGroupPostActive =
-        path === `/groups/${post.group?._id}/manage/posts`;
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+
+    if (!user) return null;
+
+    const isManageGroupPostActive =
+        path === `/groups/${post.group?._id}/manage/posts`;
 
     const currentUserId = user?.id;
     const isAuthor = currentUserId === post.author._id;

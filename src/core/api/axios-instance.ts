@@ -100,8 +100,11 @@ axiosInstance.interceptors.response.use(
                 }
             } catch (refreshError) {
                 processQueue(refreshError, null);
-                // Redirect to login on refresh failure
-                if (typeof window !== 'undefined') {
+                // Redirect to login on refresh failure (except for chat endpoint)
+                if (
+                    typeof window !== 'undefined' &&
+                    !originalRequest.url?.includes('/handbook-ai/chat')
+                ) {
                     window.location.href = '/auth/login';
                 }
                 return Promise.reject(refreshError);

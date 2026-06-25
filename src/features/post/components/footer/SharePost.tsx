@@ -26,7 +26,7 @@ interface Props {
 const BASE_URL = env.NODE_ENV === 'production' ? 'https://handbook-social.me' : 'http://localhost:3000';
 
 const SharePost: React.FC<Props> = ({ post }) => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const { data: friends } = useFriends(user?.id);
     const [sended, setSended] = useState<string[]>([]);
     const [sharingFriendId, setSharingFriendId] = useState<string | null>(null);
@@ -90,7 +90,17 @@ const SharePost: React.FC<Props> = ({ post }) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button className="flex-1 md:p-1" variant={'ghost'}>
+                <Button 
+                    className="flex-1 md:p-1" 
+                    variant={'ghost'}
+                    onClick={(e) => {
+                        if (!user) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openLoginModal();
+                        }
+                    }}
+                >
                     <Icons.Share className="text-xl" />
                     <span className="ml-1 mr-2 min-w-[10px] text-sm sm:hidden">Chia sẻ</span>
                 </Button>

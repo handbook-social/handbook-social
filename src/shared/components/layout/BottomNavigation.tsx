@@ -9,7 +9,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import React from 'react';
 
 const BottomNavigation = () => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const path = usePathname();
     const searchParams = useSearchParams();
 
@@ -61,6 +61,12 @@ const BottomNavigation = () => {
                     <Link
                         key={link.name}
                         href={link.path || '/'}
+                        onClick={(e) => {
+                            if (!user && link.path !== '/') {
+                                e.preventDefault();
+                                openLoginModal();
+                            }
+                        }}
                         className={cn(
                             'flex flex-col items-center justify-center p-2 text-gray-500 transition-colors hover:text-blue dark:text-gray-400 dark:hover:text-blue',
                             {

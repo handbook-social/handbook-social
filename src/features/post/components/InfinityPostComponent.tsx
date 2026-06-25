@@ -10,7 +10,7 @@ import Link from 'next/link';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { toast } from 'sonner';
-import { Icons, Modal } from '../../../shared/components/ui';
+import { Icons, Modal, Avatar } from '../../../shared/components/ui';
 import Image from '../../../shared/components/ui/image';
 import CreatePost from './CreatePost';
 import Post from './Post';
@@ -109,13 +109,13 @@ export const useInfiniteQueryPost = ({
 
     const fetchPosts = useCallback(
         async (pageParam: number) => {
-            if (!user?.id) return [];
+            if (!user?.id && type !== 'new-feed') return [];
 
             const endpoint = getEndpoint(type);
             const params = {
                 page: pageParam,
                 page_size: PAGE_SIZE,
-                ...(isFeedType && { user_id: user.id }),
+                ...(isFeedType && user?.id && { user_id: user.id }),
                 ...(type === 'post-by-member' && {
                     user_id: userId,
                     group_id: groupId,
@@ -148,7 +148,7 @@ export const useInfiniteQueryPost = ({
         refetchInterval: REFETCH_INTERVAL,
         refetchOnMount: false,
         refetchOnWindowFocus: false,
-        enabled: !!user && !!user.id && enabled,
+        enabled: (type === 'new-feed' || (!!user && !!user.id)) && enabled,
     });
 };
 
@@ -162,7 +162,7 @@ const InfinityPostComponent: React.FC<Props> = ({
     showCreatePost = true,
     showEmptyState = true,
 }) => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const { data, isLoading, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
         useInfiniteQueryPost({ userId, groupId, username, type });
     const params = {
@@ -184,13 +184,19 @@ const InfinityPostComponent: React.FC<Props> = ({
     const [showModalCreatePost, setShowModalCreatePost] = useState(false);
 
     const handleClose = useCallback(() => setShowModalCreatePost(false), []);
-    const handleShow = useCallback(() => setShowModalCreatePost(true), []);
+    const handleShow = useCallback(() => {
+        if (!currentUser) {
+            openLoginModal();
+            return;
+        }
+        setShowModalCreatePost(true);
+    }, [currentUser, openLoginModal]);
 
     const shouldShowCreatePost = useMemo(
         () =>
             showCreatePost &&
             !isManage &&
-            ((type === 'new-feed' && currentUser) ||
+            ((type === 'new-feed') ||
                 (type === 'profile' && isCurrentUser) ||
                 (type === 'group' && currentUser && groupId)),
         [showCreatePost, isManage, type, currentUser, isCurrentUser, groupId]
@@ -241,17 +247,7 @@ const InfinityPostComponent: React.FC<Props> = ({
             <>
                 <div className="mb-4 rounded-xl bg-white px-4 py-2 shadow-md transition-all duration-300 ease-in-out dark:bg-dark-secondary-1">
                     <div className="flex items-center">
-                        <Link href={`/profile/${user?.id}`} className="h-10 w-10">
-                            {user && (
-                                <Image
-                                    src={user.avatar || ''}
-                                    alt={user.name || ''}
-                                    width={40}
-                                    height={40}
-                                    className="h-full w-full rounded-full object-cover"
-                                />
-                            )}
-                        </Link>
+                        <Avatar user={user || undefined} className="h-10 w-10" width={40} height={40} />
                         <div
                             className="ml-3 flex h-10 flex-1 cursor-text items-center rounded-xl bg-primary-1 px-3 dark:bg-dark-secondary-2"
                             onClick={handleShow}

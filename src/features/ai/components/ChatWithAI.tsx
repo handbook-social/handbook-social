@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { useAuth } from '@/core/context/AuthContext';
 
 interface IFormData {
     text: string;
@@ -23,6 +24,7 @@ interface AIChatMessage {
 }
 
 const ChatWithAI = () => {
+    const { user, openLoginModal } = useAuth();
     const [openChat, setOpenChat] = useState<boolean>(false);
     const [messages, setMessages] = useState<AIChatMessage[]>([]);
 
@@ -41,6 +43,11 @@ const ChatWithAI = () => {
     const IS_MESSAGE_PAGE = path.includes('/messages');
 
     async function onSubmit(data: IFormData) {
+        if (!user) {
+            openLoginModal();
+            return;
+        }
+
         try {
             const { text } = data;
 
@@ -93,10 +100,18 @@ const ChatWithAI = () => {
         }
     }, [messages]);
 
+    const handleToggleChat = () => {
+        if (!user) {
+            openLoginModal();
+            return;
+        }
+        setOpenChat((prev) => !prev);
+    };
+
     return (
         <div className="fixed bottom-3 right-3 z-20 w-fit md:bottom-20">
             {!IS_MESSAGE_PAGE && !openChat && (
-                <Button onClick={() => setOpenChat((prev) => !prev)} className="h-10 w-10">
+                <Button onClick={handleToggleChat} className="h-10 w-10">
                     <Image src={'/assets/img/logo.png'} alt="Handbook AI" fill />
                 </Button>
             )}

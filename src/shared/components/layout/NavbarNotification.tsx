@@ -12,7 +12,7 @@ import NotificationItem from './NotificationItem';
 import Link from 'next/link';
 
 const NavbarNotification = () => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const { data: notifications, isLoading } = useNotifications(user?.id);
     const unreadCount = notifications ? notifications.filter((n) => !n.isRead).length : 0;
 
@@ -32,11 +32,24 @@ const NavbarNotification = () => {
         <>
             <Popover
                 onOpenChange={() => {
-                    setOpen(!open);
+                    if (user) {
+                        setOpen(!open);
+                    }
                 }}
             >
                 <PopoverTrigger asChild>
-                    <Button className={'relative'} size={'sm'} variant={'ghost'}>
+                    <Button
+                        className={'relative'}
+                        size={'sm'}
+                        variant={'ghost'}
+                        onClick={(e) => {
+                            if (!user) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                openLoginModal();
+                            }
+                        }}
+                    >
                         {open ? (
                             <Icons.NotificationActive className="h-7 w-7" />
                         ) : (

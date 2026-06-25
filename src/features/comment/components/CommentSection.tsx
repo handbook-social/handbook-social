@@ -27,7 +27,7 @@ type FormData = {
 const PAGE_SIZE = 3;
 
 const CommentSection: React.FC<Props> = ({ post, setCommentCount }) => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const queryClient = useQueryClient();
 
     const {
@@ -161,54 +161,62 @@ const CommentSection: React.FC<Props> = ({ post, setCommentCount }) => {
         );
     }
 
-    // Early return nếu chưa đăng nhập
-    if (!user) {
-        return null;
-    }
-
     return (
         <>
             <div className="mb-2 mt-2 flex items-center">
-                {user && <Avatar user={user} />}
+                {user ? (
+                    <>
+                        <Avatar user={user} />
 
-                <div className="ml-2 flex-1">
-                    <Form {...form}>
-                        <form
-                            className="flex h-fit w-full overflow-hidden rounded-xl border bg-primary-1 dark:border-none dark:bg-dark-secondary-2"
-                            onSubmit={handleSubmit((data) => {
-                                mutate(data);
-                            })}
-                            ref={formRef}
+                        <div className="ml-2 flex-1">
+                            <Form {...form}>
+                                <form
+                                    className="flex h-fit w-full overflow-hidden rounded-xl border bg-primary-1 dark:border-none dark:bg-dark-secondary-2"
+                                    onSubmit={handleSubmit((data) => {
+                                        mutate(data);
+                                    })}
+                                    ref={formRef}
+                                >
+                                    <Controller
+                                        control={form.control}
+                                        name="text"
+                                        render={({ field }) => (
+                                            <FormControl>
+                                                <Textarea
+                                                    {...field}
+                                                    ref={inputRef}
+                                                    className="cursor-text rounded-l-xl rounded-r-none bg-transparent outline-none dark:border-none"
+                                                    placeholder="Viết bình luận..."
+                                                    spellCheck={false}
+                                                    autoComplete="off"
+                                                    onKeyDown={handleKeyDown}
+                                                />
+                                            </FormControl>
+                                        )}
+                                    />
+
+                                    <Button
+                                        className="right-0 w-10 rounded-l-none rounded-r-xl px-3 hover:cursor-pointer hover:bg-hover-1 dark:border-none dark:hover:bg-dark-hover-2"
+                                        variant={'custom'}
+                                        type="submit"
+                                        disabled={isPending}
+                                    >
+                                        {isPending ? <Icons.Loading className="animate-spin" /> : <Icons.Send />}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex-1">
+                        <div 
+                            className="flex h-10 w-full cursor-pointer items-center justify-between rounded-xl border bg-primary-1 px-4 py-2 text-sm text-secondary-1 hover:bg-hover-1 dark:border-none dark:bg-dark-secondary-2 dark:hover:bg-dark-hover-2"
+                            onClick={() => openLoginModal()}
                         >
-                            <Controller
-                                control={form.control}
-                                name="text"
-                                render={({ field }) => (
-                                    <FormControl>
-                                        <Textarea
-                                            {...field}
-                                            ref={inputRef}
-                                            className="cursor-text rounded-l-xl rounded-r-none bg-transparent outline-none dark:border-none"
-                                            placeholder="Viết bình luận..."
-                                            spellCheck={false}
-                                            autoComplete="off"
-                                            onKeyDown={handleKeyDown}
-                                        />
-                                    </FormControl>
-                                )}
-                            />
-
-                            <Button
-                                className="right-0 w-10 rounded-l-none rounded-r-xl px-3 hover:cursor-pointer hover:bg-hover-1 dark:border-none dark:hover:bg-dark-hover-2"
-                                variant={'custom'}
-                                type="submit"
-                                disabled={isPending}
-                            >
-                                {isPending ? <Icons.Loading className="animate-spin" /> : <Icons.Send />}
-                            </Button>
-                        </form>
-                    </Form>
-                </div>
+                            <span>Đăng nhập để viết bình luận...</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {isPending && <SkeletonComment />}

@@ -18,7 +18,7 @@ interface SidebarItemProps {
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ link }) => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const path = usePathname();
     const { isSidebarOpen, setIsSidebarOpen } = useSidebarCollapse();
     const searchParams = useSearchParams();
@@ -66,9 +66,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ link }) => {
                     }
                 )}
                 href={link.path || '/'}
-                onClick={() => {
+                onClick={(e) => {
                     if (isSidebarOpen) {
                         setIsSidebarOpen(false);
+                    }
+                    if (!user && link.path !== '/') {
+                        e.preventDefault();
+                        openLoginModal();
                     }
                 }}
             >

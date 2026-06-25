@@ -65,7 +65,7 @@ export const useReplyComments = ({
     });
 
 const CommentItem: React.FC<Props> = ({ data: comment, setCommentCount }) => {
-    const { user } = useAuth();
+    const { user, openLoginModal } = useAuth();
     const isDeleted = comment.isDeleted;
 
     const [showReplyComments, setShowReplyComments] = useState<boolean>(false);
@@ -321,6 +321,12 @@ const CommentItem: React.FC<Props> = ({ data: comment, setCommentCount }) => {
                             <div className={'mb-1 flex items-center'}>
                                 <Link
                                     href={`/profile/${comment.author._id}`}
+                                    onClick={(e) => {
+                                        if (!user) {
+                                            e.preventDefault();
+                                            openLoginModal();
+                                        }
+                                    }}
                                     className="mr-1 p-0 text-xs font-bold hover:underline dark:text-dark-primary-1"
                                 >
                                     {comment.author.name}
@@ -369,7 +375,13 @@ const CommentItem: React.FC<Props> = ({ data: comment, setCommentCount }) => {
                             })}
                             variant={'text'}
                             size={'xs'}
-                            onClick={() => mutationLoveComment.mutate()}
+                            onClick={() => {
+                                if (!user) {
+                                    openLoginModal();
+                                    return;
+                                }
+                                mutationLoveComment.mutate();
+                            }}
                             disabled={mutationLoveComment.isPending}
                         >
                             Yêu thích
@@ -379,7 +391,13 @@ const CommentItem: React.FC<Props> = ({ data: comment, setCommentCount }) => {
                             className="mr-2"
                             variant={'text'}
                             size={'xs'}
-                            onClick={handleShowReplyForm}
+                            onClick={() => {
+                                if (!user) {
+                                    openLoginModal();
+                                    return;
+                                }
+                                handleShowReplyForm();
+                            }}
                         >
                             Trả lời
                         </Button>

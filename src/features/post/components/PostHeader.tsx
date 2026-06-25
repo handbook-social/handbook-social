@@ -6,6 +6,7 @@ import { IPost } from '@/types/entites';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { Avatar } from '../../../shared/components/ui';
+import { useAuth } from '@/core/context/AuthContext';
 import {
     Tooltip,
     TooltipContent,
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const PostHeader = ({ post }: Props) => {
+    const { user, openLoginModal } = useAuth();
     const isGroupPost = useMemo(() => post?.type === 'group', [post]);
 
     const IconType = postAudience.find(
@@ -67,6 +69,12 @@ const PostHeader = ({ post }: Props) => {
                                     ? `/groups/${post.group._id}`
                                     : `/profile/${post.author._id}`
                             }
+                            onClick={(e) => {
+                                if (!user) {
+                                    e.preventDefault();
+                                    openLoginModal();
+                                }
+                            }}
                             className="text-sm font-semibold hover:underline dark:text-dark-primary-1"
                         >
                             {post.group ? post.group.name : post.author.name}
@@ -82,6 +90,12 @@ const PostHeader = ({ post }: Props) => {
                         <div className="flex items-center gap-1">
                             <Link
                                 href={`/profile/${post.author._id}`}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        openLoginModal();
+                                    }
+                                }}
                                 className="text-xs text-secondary-1 hover:underline dark:text-dark-primary-1"
                             >
                                 {post.author.name}

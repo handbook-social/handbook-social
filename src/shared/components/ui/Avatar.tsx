@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { useAuth } from '@/core/context/AuthContext';
 
 interface User {
     id: string;
@@ -38,6 +39,8 @@ const Avatar: React.FC<Props> = ({
     rounded = 'full',
     onlyImage = false,
 }) => {
+    const { user: currentUser, openLoginModal } = useAuth();
+
     const userId = user?.id || userUrl;
     const userImage = user?.avatar || user?.image || imgSrc;
     const userName = user?.name || alt;
@@ -72,6 +75,13 @@ const Avatar: React.FC<Props> = ({
         <Link
             className={cn(className)}
             href={(isUser && `/profile/${userId}`) || (href && href) || ''}
+            onClick={(e) => {
+                if (!currentUser) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openLoginModal();
+                }
+            }}
         >
             <Image
                 className={cn(`rounded-${rounded}`, className)}

@@ -26,6 +26,10 @@ const FriendSection: React.FC<Props> = () => {
 
     const { data, isLoading } = useFriendsWithConversations(user?.id);
 
+    if (!user) {
+        return null;
+    }
+
     const friends = data?.friends || [];
     const friendConversations = data?.friendConversations || [];
     const groupConversations = data?.groupConversations || [];
