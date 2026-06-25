@@ -100,13 +100,9 @@ axiosInstance.interceptors.response.use(
                 }
             } catch (refreshError) {
                 processQueue(refreshError, null);
-                // Redirect to login on refresh failure (except for chat endpoint)
-                if (
-                    typeof window !== 'undefined' &&
-                    !originalRequest.url?.includes('/handbook-ai/chat')
-                ) {
-                    window.location.href = '/auth/login';
-                }
+                // Do not redirect to /auth/login here.
+                // React-level ProtectedRoute will handle redirecting if the user is on a protected route.
+                // This allows guests to stay on public routes (like the homepage '/') when refresh fails or on logout.
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
