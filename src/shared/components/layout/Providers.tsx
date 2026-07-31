@@ -7,7 +7,9 @@ import {
     SocialProvider,
     SocketProvider,
     VideoCallProvider,
+    MaintenanceProvider,
 } from '@/core/context';
+import ServerMaintenanceOverlay from './ServerMaintenanceOverlay';
 import { AxiosInterceptor } from '@/features/auth';
 import { VideoCallWrapper } from '@/features/video-call/components';
 import { Toaster as SonnerToaster } from '@/shared/components/ui/sonner';
@@ -67,33 +69,36 @@ const Providers: FunctionComponent<ProvidersProps> = ({ children }) => {
     return (
         <QueryClientProvider client={queryClient}>
             <GoogleOAuthProvider clientId={env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-                <AuthProvider>
-                    <AxiosInterceptor />
-                    <Analytics />
-                    
-                    <SocketProvider>
-                        <SocialProvider>
-                            <AppProvider>
-                                <SidebarProvider>
-                                    <VideoCallProvider>
-                                        <ThemeProvider
-                                            attribute="class"
-                                            defaultTheme="system"
-                                            enableSystem
-                                        >
-                                            <SonnerToaster
-                                                position="bottom-left"
-                                                richColors
-                                            />
-                                            {children}
-                                            <VideoCallWrapper />
-                                        </ThemeProvider>
-                                    </VideoCallProvider>
-                                </SidebarProvider>
-                            </AppProvider>
-                        </SocialProvider>
-                    </SocketProvider>
-                </AuthProvider>
+                <MaintenanceProvider>
+                    <AuthProvider>
+                        <AxiosInterceptor />
+                        <Analytics />
+                        
+                        <SocketProvider>
+                            <SocialProvider>
+                                <AppProvider>
+                                    <SidebarProvider>
+                                        <VideoCallProvider>
+                                            <ThemeProvider
+                                                attribute="class"
+                                                defaultTheme="system"
+                                                enableSystem
+                                            >
+                                                <SonnerToaster
+                                                    position="bottom-left"
+                                                    richColors
+                                                />
+                                                {children}
+                                                <ServerMaintenanceOverlay />
+                                                <VideoCallWrapper />
+                                            </ThemeProvider>
+                                        </VideoCallProvider>
+                                    </SidebarProvider>
+                                </AppProvider>
+                            </SocialProvider>
+                        </SocketProvider>
+                    </AuthProvider>
+                </MaintenanceProvider>
             </GoogleOAuthProvider>
             {/* React Query DevTools - only in development */}
             {/**

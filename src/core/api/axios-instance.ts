@@ -1,5 +1,6 @@
 import { env } from '@/core/config/env.config';
 import axios from 'axios';
+import { triggerGlobalMaintenance } from '@/core/context/MaintenanceContext';
 
 let BASE_URL;
 
@@ -20,6 +21,35 @@ export const axiosAuth = axios.create({
     baseURL: BASE_URL,
     withCredentials: true,
 });
+
+axiosAuth.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (
+            error.response?.status === 503 ||
+            error.response?.data?.code === 'SERVER_MAINTENANCE'
+        ) {
+            triggerGlobalMaintenance(
+                true,
+                'MAINTENANCE',
+                error.response?.data?.message
+            );
+        } else if (
+            !error.response &&
+            error.config?.url !== '/health' &&
+            (error.code === 'ERR_NETWORK' ||
+                error.code === 'ECONNREFUSED' ||
+                error.message?.includes('Network Error'))
+        ) {
+            triggerGlobalMaintenance(
+                true,
+                'NETWORK_ERROR',
+                'Máy chủ hiện đang tạm đóng hoặc không thể kết nối. Vui lòng quay lại sau!'
+            );
+        }
+        return Promise.reject(error);
+    }
+);
 
 let accessTokenGetter: (() => string | null) | null = null;
 let refreshTokenCallback: (() => Promise<void>) | null = null;
@@ -63,11 +93,36 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response interceptor: Handle 401 and refresh token
+// Response interceptor: Handle 401, 503 maintenance, and network errors
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+
+        // Check for 503 Maintenance Mode
+        if (
+            error.response?.status === 503 ||
+            error.response?.data?.code === 'SERVER_MAINTENANCE'
+        ) {
+            triggerGlobalMaintenance(
+                true,
+                'MAINTENANCE',
+                error.response?.data?.message
+            );
+        } else if (
+            !error.response &&
+            (error.code === 'ERR_NETWORK' ||
+                error.code === 'ECONNREFUSED' ||
+                error.message?.includes('Network Error'))
+        ) {
+            if (originalRequest?.url !== '/health') {
+                triggerGlobalMaintenance(
+                    true,
+                    'NETWORK_ERROR',
+                    'Máy chủ hiện đang tạm đóng hoặc không thể kết nối. Vui lòng quay lại sau!'
+                );
+            }
+        }
 
         // If 401 and not already retried and not the refresh endpoint
         if (
@@ -100,9 +155,6 @@ axiosInstance.interceptors.response.use(
                 }
             } catch (refreshError) {
                 processQueue(refreshError, null);
-                // Do not redirect to /auth/login here.
-                // React-level ProtectedRoute will handle redirecting if the user is on a protected route.
-                // This allows guests to stay on public routes (like the homepage '/') when refresh fails or on logout.
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
