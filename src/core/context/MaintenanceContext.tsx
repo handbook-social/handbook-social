@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { axiosAuth } from '@/core/api/axios-instance';
+import { env } from '@/core/config/env.config';
 
 export type MaintenanceType = 'MAINTENANCE' | 'NETWORK_ERROR';
 
@@ -55,10 +56,14 @@ export const triggerGlobalMaintenance = (
 export const MaintenanceProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
-    const [isMaintenance, setIsMaintenance] = useState(false);
+    const isClientEnvMaintenance = env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
+
+    const [isMaintenance, setIsMaintenance] = useState(isClientEnvMaintenance);
     const [maintenanceType, setMaintenanceType] =
         useState<MaintenanceType>('MAINTENANCE');
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState(
+        env.NEXT_PUBLIC_MAINTENANCE_MESSAGE || ''
+    );
     const [isMinimized, setIsMinimized] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
 
@@ -89,15 +94,18 @@ export const MaintenanceProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const setMaintenanceMode = useCallback(
         (active: boolean, type: MaintenanceType = 'MAINTENANCE', msg?: string) => {
-            setIsMaintenance(active);
+            const nextActive = isClientEnvMaintenance || active;
+            setIsMaintenance(nextActive);
             setMaintenanceType(type);
-            if (msg) setMessage(msg);
-            if (!active) {
+            if (msg || env.NEXT_PUBLIC_MAINTENANCE_MESSAGE) {
+                setMessage(msg || env.NEXT_PUBLIC_MAINTENANCE_MESSAGE || '');
+            }
+            if (!nextActive) {
                 setIsMinimized(false);
                 attemptsRef.current = 0;
             }
         },
-        []
+        [isClientEnvMaintenance]
     );
 
     useEffect(() => {

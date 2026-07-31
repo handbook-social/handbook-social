@@ -18,6 +18,10 @@ const envSchema = z.object({
 
     // Google Client Id:
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string(),
+
+    // Maintenance Mode Override from Client
+    NEXT_PUBLIC_MAINTENANCE_MODE: z.string().optional().default('false'),
+    NEXT_PUBLIC_MAINTENANCE_MESSAGE: z.string().optional(),
 });
 
 // Process env validation
@@ -29,6 +33,8 @@ const envProcess = envSchema.safeParse({
     NEXT_PUBLIC_TURN_CREDENTIAL: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    NEXT_PUBLIC_MAINTENANCE_MODE: process.env.NEXT_PUBLIC_MAINTENANCE_MODE,
+    NEXT_PUBLIC_MAINTENANCE_MESSAGE: process.env.NEXT_PUBLIC_MAINTENANCE_MESSAGE,
 });
 
 if (!envProcess.success) {
