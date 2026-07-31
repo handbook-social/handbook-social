@@ -9,7 +9,6 @@ import {
     VideoCallProvider,
     MaintenanceProvider,
 } from '@/core/context';
-import ServerMaintenanceOverlay from './ServerMaintenanceOverlay';
 import { AxiosInterceptor } from '@/features/auth';
 import { VideoCallWrapper } from '@/features/video-call/components';
 import { Toaster as SonnerToaster } from '@/shared/components/ui/sonner';
@@ -89,7 +88,6 @@ const Providers: FunctionComponent<ProvidersProps> = ({ children }) => {
                                                     richColors
                                                 />
                                                 {children}
-                                                <ServerMaintenanceOverlay />
                                                 <VideoCallWrapper />
                                             </ThemeProvider>
                                         </VideoCallProvider>
