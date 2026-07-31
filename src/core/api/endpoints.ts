@@ -191,5 +191,8 @@ export const API_ENDPOINTS = {
     // AI endpoints
     AI: {
         HANDBOOK_AI_CHAT: '/handbook-ai/chat',
+        HANDBOOK_AI_SESSIONS: '/handbook-ai/sessions',
+        HANDBOOK_AI_SESSION_MESSAGES: (sessionId: string) => `/handbook-ai/sessions/${sessionId}/messages`,
+        HANDBOOK_AI_DELETE_SESSION: (sessionId: string) => `/handbook-ai/sessions/${sessionId}`,
     },
 };
