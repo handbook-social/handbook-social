@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useMaintenance } from '@/core/context';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/shared/components/ui/Button';
 import {
     Wrench,
@@ -23,7 +24,9 @@ export const ServerMaintenanceOverlay: React.FC = () => {
         checkHealth,
     } = useMaintenance();
 
-    if (!isMaintenance) return null;
+    const pathname = usePathname();
+
+    if (!isMaintenance || pathname === '/maintenance') return null;
 
     const isMaintenanceMode = maintenanceType === 'MAINTENANCE';
 

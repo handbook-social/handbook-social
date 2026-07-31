@@ -7,6 +7,7 @@ import React, {
     useCallback,
     useRef,
 } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { axiosAuth } from '@/core/api/axios-instance';
 
 export type MaintenanceType = 'MAINTENANCE' | 'NETWORK_ERROR';
@@ -63,6 +64,28 @@ export const MaintenanceProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const attemptsRef = useRef(0);
     const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+
+    const pathname = usePathname();
+    const router = useRouter();
+
+    // Auto-redirect to /maintenance and lock user from accessing other routes
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        if (isMaintenance) {
+            if (pathname !== '/maintenance') {
+                sessionStorage.setItem('maintenance_redirect_back', pathname);
+                router.replace('/maintenance');
+            }
+        } else {
+            if (pathname === '/maintenance') {
+                const redirectBack =
+                    sessionStorage.getItem('maintenance_redirect_back') || '/';
+                sessionStorage.removeItem('maintenance_redirect_back');
+                router.replace(redirectBack);
+            }
+        }
+    }, [isMaintenance, pathname, router]);
 
     const setMaintenanceMode = useCallback(
         (active: boolean, type: MaintenanceType = 'MAINTENANCE', msg?: string) => {
